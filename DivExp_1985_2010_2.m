@@ -1,5 +1,5 @@
 % --------------------------------------------------------------------------------------------------
-% By César Salinas, May 2018
+% By CÃ©sar Salinas and Wilder PÃ©rez, May 2018
 % --------------------------------------------------------------------------------------------------
 clear all
 close all
@@ -8,11 +8,11 @@ clc
 
 linea = '-----------------------------------------------------------------------------------------------------------';
 disp(linea)
-fprintf(1, '"Bayesian model averaging" aplicada a la diversificación exportadora.');
+fprintf(1, '"Bayesian model averaging" aplicada a la diversificaciÃ³n exportadora.');
 fprintf(1, '\n');
 disp(linea)
 fprintf(1, 'Basado en Fernandez, Ley y Steel (2001), "Benchmark Priors for Bayesian Model Averaging",\n');
-fprintf(1, '                                          Journal of Econometrics, 100(2), 381–427.\n');
+fprintf(1, '                                          Journal of Econometrics, 100(2), 381â€“427.\n');
 fprintf(1, '          Fernandez, Ley y Steel (2001), "Model Uncertainty in Cross-Country Growth Regressions",\n');
 fprintf(1, '                                          Journal of Applied Econometrics, 16(5), 563-576.\n');
 disp(linea), disp(' ')
@@ -64,9 +64,9 @@ Ms = (tb > 1)';
 Ms(K + 1) = true; % Siempre se incluye el intercepto en las regresiones
 
 
-% Parámetros de simulación
+% ParÃ¡metros de simulaciÃ³n
 R      = 300000;        % Numero FINAL de repeticiones
-burnin = R/5;        % Número de repeticiones "burn in"
+burnin = R/5;        % NÃºmero de repeticiones "burn in"
 iter   = R + burnin;
 
 MOD_   = nan(R, K + 1);
@@ -75,14 +75,14 @@ VBETA_  = zeros(R, K + 1); % Solo guardamos las varianzas
 logpM_ = nan(R, 1);
 SIGMA2_ = nan(R, 1);
 
-logPosts  = -1/eps; % "Aceptamos" la primera iteración.
-Acc    = 0;   % Repeticiones donde la realización candidata es aceptada
+logPosts  = -1/eps; % "Aceptamos" la primera iteraciÃ³n.
+Acc    = 0;   % Repeticiones donde la realizaciÃ³n candidata es aceptada
 Xbig   = X;
 
 
 fprintf('Algoritmo MC^3:\n')
 for i = 1:iter
-    % Tomamos un número aleatorio entre 0, 1, 2, 3, ..., K
+    % Tomamos un nÃºmero aleatorio entre 0, 1, 2, 3, ..., K
     h = round(K*rand);
     Msold = Ms;
     if h == 0
@@ -95,24 +95,24 @@ for i = 1:iter
             Ms(h) = true ;  %    ... lo agregamos
         end
         
-        % Selección del modelo
+        % SelecciÃ³n del modelo
         k = sum(Ms) - 1; % No contamos al intercepto
         X = Xbig(:, Ms);
         
-        % Regresión MCO
+        % RegresiÃ³n MCO
         XXinv = (X'*X)\eye(k + 1);
         b     = XXinv*X'*y;
         e     = y - X*b;
         yMy   = e'*e;
         
-        % Determinación de g y momentos a posteriori
+        % DeterminaciÃ³n de g y momentos a posteriori
         g = 1/max([n K^2]);
         S = ( yMy + g*yM1y )/(1 + g);
         
         % log marginal likelihood
         logPost = ( k*log(g) - k*log(1 + g) - (n - 1)*log(S) )/2;
         
-        % Aceptación o rechazo
+        % AceptaciÃ³n o rechazo
         if log(rand) < min([0 logPost-logPosts])
             Ebeta = b/(1 + g);
             Vbeta = XXinv*S/(n - 2)/(1 + g);
@@ -122,7 +122,7 @@ for i = 1:iter
             Ms = Msold;
         end
     end
-    % Las repeticiones se almacenan una vez que pasó el periodo "burn in"
+    % Las repeticiones se almacenan una vez que pasÃ³ el periodo "burn in"
     if i > burnin
         if i == burnin + 1
             fprintf(1, '. Fin de las %s repeticiones "Burn in"\nAvance (%s repeticiones): ', num2str(burnin), num2str(R));
@@ -146,12 +146,12 @@ for i = 1:iter
     end
 end
 fprintf('\n')
-fprintf('Tasa de aceptación (%%) = %s\n\n', num2str(Acc/iter*100))
+fprintf('Tasa de aceptaciÃ³n (%%) = %s\n\n', num2str(Acc/iter*100))
 
 %% Tamano del modelo: A priori y a posteriori
 [n1,x1] = hist(binornd(K, 0.5, iter, 1), 1:40);
 [n2,x2] = hist(sum(MOD_,2), 1:40);
-f = figure; set(f, 'name', 'Distribución del tamaño del modelo', 'Units', 'normalized', 'Position', [30 15 60 60]/100)
+f = figure; set(f, 'name', 'DistribuciÃ³n del tamaÃ±o del modelo', 'Units', 'normalized', 'Position', [30 15 60 60]/100)
 hold on
 b1 = bar(x1, 100*n1/sum(n1));
 b2 = bar(x2, 100*n2/sum(n2));
@@ -161,7 +161,7 @@ set(b2, 'EdgeColor', 'b', 'FaceColor', 'b', 'Barwidth', 0.6)
 set(gca, 'Xtick', 2:25, 'Xlim', [1.5 25.5], 'Box', 'Off')
 ylabel('100 \times Frecuencia')
 leg = legend([b1 b2], '\itA priori', '\itA posteriori');
-title('\bfDistribución del tamaño del modelo')
+title('\bfDistribuciÃ³n del tamaÃ±o del modelo')
 set(leg, 'Box', 'Off', 'Location', 'NorthEast')
 
 %%
@@ -170,18 +170,18 @@ clear BETA_ VBETA_ logpM_ SIGMA2_
 
 fprintf('Ordenando los modelos')
 [MOD, I, J] = unique(MOD_, 'rows');
-% MODELOS es una matriz de r x K que contiene los r "únicos" modelos
-% visitados por la cadena. "i" es un índice tal que MODELOS = MODS(i, :).
-% "j" es un índice tal que MOD = MODELOS(j,:).
+% MODELOS es una matriz de r x K que contiene los r "Ãºnicos" modelos
+% visitados por la cadena. "i" es un Ã­ndice tal que MODELOS = MODS(i, :).
+% "j" es un Ã­ndice tal que MOD = MODELOS(j,:).
 
 clear MOD_
 r     = length(I);
-fprintf('. La cadena visitó %s modelos únicos.\n', num2str(r))
+fprintf('. La cadena visitÃ³ %s modelos Ãºnicos.\n', num2str(r))
 T     = tabulate(J);
-frec  = T(:,2); % Número de veces que los modelos la matriz MODELOS han aparecido
+frec  = T(:,2); % NÃºmero de veces que los modelos la matriz MODELOS han aparecido
 
 load _temp
-% Las realizaciones de los modelos únicos
+% Las realizaciones de los modelos Ãºnicos
 BETA   = BETA_(I, :);
 VBETA  = VBETA_(I, :);
 SIGMA2 = SIGMA2_(I, :);
@@ -192,10 +192,10 @@ logpM = logpM_(I, :);
 clear BETA_ VBETA_ logpM_ SIGMA2_ MOD_ T
 delete('_temp.mat')
 
-probA = exp( logpM - max(logpM) ); % Probabilidad "analítica"
+probA = exp( logpM - max(logpM) ); % Probabilidad "analÃ­tica"
 probA = probA/sum(probA);
 
-probN = frec/sum(frec);            % Probabilidad "numérica"
+probN = frec/sum(frec);            % Probabilidad "numÃ©rica"
 
 %% Resultado en figura
 [~, ind] = sortrows(probA, -1);
@@ -209,7 +209,7 @@ set(b(1), 'EdgeColor', 'r', 'FaceColor', 'r')
 set(b(2), 'EdgeColor', 'b', 'FaceColor', 'b')
 set(gca, 'Xtick', 1:20, 'Xlim', [0.5 20.5], 'Box', 'Off')
 ylabel('100 \times Probabilidad')
-leg = legend(b, 'Analítica', 'Numérica');
+leg = legend(b, 'AnalÃ­tica', 'NumÃ©rica');
 set(leg, 'Box', 'Off', 'Location', 'NorthEast')
 C = corrcoef([probN probA]);
 title(['\bfProbabilidad a posteriori de los 20 mejores modelos (\rho = ' num2str(C(1,2)) ')'])
@@ -222,7 +222,7 @@ postmean = BETA'*probA;
 postvar = VBETA'*probA; + ( ( BETA - repmat(postmean', r, 1) ).^2 )'*probA;
 poststd = sqrt(postvar);
 
-% Ordenamos los datos (descendentemente) de acuerdo a la probabilidad de inclusión
+% Ordenamos los datos (descendentemente) de acuerdo a la probabilidad de inclusiÃ³n
 [~, ind] = sort(-postprob(:));
 
 linea = repmat('-', 1, 72);
